@@ -1,5 +1,5 @@
 global with sharing class WeatherGeoService {
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static Default_City__mdt getDefaultLocation() {
         return [
             SELECT Location__c, Country__c

@@ -11,25 +11,38 @@ export default class LocationSearchWidget extends LightningElement {
     @track
     q;
     @track
-    loading = false;
-    hasRendered = false;
-    @track
     needRefresh = false;
-
 
     connectedCallback() {
         getDefaultLocation({}).then((data) => {
             this.default = `${data.Location__c},${data.Country__c}`;
+            this.location = this.default;
             this.q = `${data.Location__c},${data.Country__c}`;
-            this.init(this.q);
-            this.callRefresh(this.q);
+            this.refresh();
         });
     }
 
-    init(loc) {
-        let el = this.template.querySelector(".location");
-        el.innerText = loc;
-        el.addEventListener("keypress", (event) => {
+    async requestGeoData(q) {
+        await getGeoData({ location: q }).then((geoData) => {
+            if (geoData != null || geoData != undefined || geoData?.length > 0) {
+                let data = JSON.parse(JSON.stringify(geoData));
+                this.location = `${data[0].name},${data[0].country}`;
+            } else {
+                this.q = this.location = this.default;
+            }
+        }).catch((error) => {
+            this.q = this.location = this.default;
+        });
+    }
+
+    async refresh() {
+        await this.requestGeoData(this.q);
+        this.callRefresh(this.q);
+
+        let inputField = this.template.querySelector(".location");
+        inputField.innerText = this.location;
+
+        inputField.addEventListener("keypress", (event) => {
             if (event.key === "Enter" || event.key === 13) {
                 event.preventDefault();
                 this.refineLocation(event.target.innerText);
@@ -38,33 +51,30 @@ export default class LocationSearchWidget extends LightningElement {
     }
 
     renderedCallback() {
-        if (this.needRefresh) {
-            this.init(this.location);
-            this.callRefresh(this.q);
-            this.needRefresh = false;
-        }
+        // console.log(this.needRefresh);
+        // if (this.needRefresh) {
+        //     console.log(this.location);
+        //     let inputField = this.template.querySelector(".location");
+        //     inputField.innerText = this.location;
+
+        //     inputField.addEventListener("keypress", (event) => {
+        //         if (event.key === "Enter" || event.key === 13) {
+        //             event.preventDefault();
+        //             this.refineLocation(event.target.innerText);
+        //         }
+        //     });
+
+        //     this.needRefresh = false;
+        // }
     }
 
     refineLocation(loc) {
-        this.toggleLoading();
-
         if (loc === "") {
             this.q = this.default;
         } else if (loc !== this.default) {
+            this.callLoading();
             this.q = loc;
-            getGeoData({ location: loc }).then((geoData) => {
-                if (geoData != null || geoData != undefined || geoData?.length > 0) {
-                    let data = JSON.parse(JSON.stringify(geoData));
-                    this.location = `${data[0].name},${data[0].country}`;
-                } else {
-                    this.q = this.default;
-                }
-            }).catch((error) => {
-                this.q = this.default;
-            }).finally(() => {
-                this.needRefresh = true;
-                this.toggleLoading();
-            });
+            this.refresh();
         }
     }
 
@@ -75,8 +85,10 @@ export default class LocationSearchWidget extends LightningElement {
         }));
     }
 
-    toggleLoading() {
-        this.loading = this.loading === true ? false : true;
+    callLoading() {
+        this.dispatchEvent(new CustomEvent('loading', {
+            bubbles: true
+        }));
     }
 
     editLocation(event) {

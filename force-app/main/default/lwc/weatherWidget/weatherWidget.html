@@ -10,60 +10,84 @@
                     <c-location-search-widget></c-location-search-widget>
                 </div>
 
-                <div class="left-bar-icon">
-                    <div class="icon128" data-url={currentWeather.IconUrl}></div>
-                </div>
+                <template lwc:if={loading}>
+                    <div style="height:6rem;position:relative">
+                        <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_inverse">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <div class="left-bar-icon">
+                        <div class="icon128" data-url={currentWeather.IconUrl}></div>
+                    </div>
 
-                <div class="left-bar-description">
-                    <span class="slds-text-heading_small" style="font-weight: bold">{currentWeather.Description}</span>
-                </div>
+                    <div class="left-bar-description">
+                        <span class="slds-text-heading_small"
+                            style="font-weight: bold">{currentWeather.Description}</span>
+                    </div>
 
-                <div class="left-bar-temperature">
-                    <span class="slds-text-heading_large" style="font-weight: bold">{currentWeather.Temperature}°</span>
-                </div>
+                    <div class="left-bar-temperature">
+                        <span class="slds-text-heading_large"
+                            style="font-weight: bold">{currentWeather.Temperature}°</span>
+                    </div>
+                </template>
             </div>
         </div>
 
         <div class="slds-p-horizontal_small right-bar-container">
-            <div class="previous-button">
-                <lightning-button-icon class="btn slds-m-right_x-small"
-                    icon-name="utility:chevronleft" onclick={previousHour} disabled={previousDisabled}>
-                </lightning-button-icon>
-            </div>
-
-            <div class="slds-p-around_x-small forecast-container">
-                <template for:each={weatherHourData} for:item="data">
-                    <div class="hourly" key={data.Time}>
-                        <div class="hourly-time">
-                            <span class="slds-text-color_weak slds-text-heading_medium"
-                                style="font-weight: bold">{data.Time}</span>
-                        </div>
-
-                        <div class="hourly-icon">
-                            <div class="icon64" data-url={data.IconUrl}></div>
-                        </div>
-
-                        <div class="hourly-description">
-                            <span class="slds-text-color_weak" style="font-weight: bold">{data.Description}</span>
-                        </div>
-
-                        <div class="hourly-temperature">
-                            <span class="slds-text-color_weak slds-text-heading_medium"
-                                style="font-weight: bold">{data.Temperature}°</span>
-                        </div>
-
-                        <div class="hourly-wind">
-                            <span class="slds-text-color_weak" style="font-weight:bold">{data.Wind} km/h</span>
-                        </div>
+            <template lwc:if={loading}>
+                <div style="height:6rem;position:relative">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
                     </div>
-                </template>
-            </div>
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="previous-button">
+                    <lightning-button-icon class="btn slds-m-right_x-small" icon-name="utility:chevronleft"
+                        onclick={previousHour} disabled={previousDisabled}>
+                    </lightning-button-icon>
+                </div>
 
-            <div class="next-button">
-                <lightning-button-icon class="btn slds-m-left_x-small"
-                    icon-name="utility:chevronright" onclick={nextHour} disabled={nextDisabled}>
-                </lightning-button-icon>
-            </div>
+                <div class="slds-p-around_x-small forecast-container">
+                    <template for:each={weatherHourData} for:item="data">
+                        <div class="hourly" key={data.Time}>
+                            <div class="hourly-time">
+                                <span class="slds-text-color_weak slds-text-heading_medium"
+                                    style="font-weight: bold">{data.Time}</span>
+                            </div>
+
+                            <div class="hourly-icon">
+                                <div class="icon64" data-url={data.IconUrl}></div>
+                            </div>
+
+                            <div class="hourly-description">
+                                <span class="slds-text-color_weak" style="font-weight: bold">{data.Description}</span>
+                            </div>
+
+                            <div class="hourly-temperature">
+                                <span class="slds-text-color_weak slds-text-heading_medium"
+                                    style="font-weight: bold">{data.Temperature}°</span>
+                            </div>
+
+                            <div class="hourly-wind">
+                                <span class="slds-text-color_weak" style="font-weight:bold">{data.Wind} km/h</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="next-button">
+                    <lightning-button-icon class="btn slds-m-left_x-small" icon-name="utility:chevronright"
+                        onclick={nextHour} disabled={nextDisabled}>
+                    </lightning-button-icon>
+                </div>
+            </template>
         </div>
     </div>
 </template>

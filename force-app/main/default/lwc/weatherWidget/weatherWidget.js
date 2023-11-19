@@ -1,4 +1,4 @@
-import { LightningElement, track, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getCurrentWeather from '@salesforce/apex/WeatherWidgetService.getCurrentWeather';
 import getCurrentForecast from '@salesforce/apex/WeatherWidgetService.getCurrentForecast';
 
@@ -13,24 +13,31 @@ export default class WeatherWidget extends LightningElement {
         Description: '',
         IconUrl: "https://openweathermap.org/img/wn/04n@4x.png"
     };
-    forecast = [];
-
     @track
     weatherHourData = [];
-    hasRendered = false;
-    hourIds = [0, 1, 2, 3, 4];
+    @track
+    loading = true;
+    @track
+    needRefresh = false;
+
+    forecast = [];
+    hourIds = [0, 1, 2];
     previousDisabled = true;
     nextDisabled = false;
 
     connectedCallback() {
-        this.template.addEventListener("refresh", (event => {
+        this.template.addEventListener("loading", (event) => {
+            this.loading = true;
+        });
+
+        this.template.addEventListener("refresh", (event) => {
             this.location = event.detail;
-            this.refresh();
-        }));
+            this.refresh(this.location);
+        });
     }
 
-    refresh() {
-        getCurrentWeather({ location: this.location }).then((data) => {
+    async requestWeatherData(q) {
+        await getCurrentWeather({ location: q }).then((data) => {
             let weather = JSON.parse(JSON.stringify(data));
             this.currentWeather.Time = new Date(weather.timestamp * 1000).toLocaleDateString("en-US", {
                 weekday: 'short',
@@ -46,7 +53,7 @@ export default class WeatherWidget extends LightningElement {
             console.log(error);
         });
 
-        getCurrentForecast({ location: this.location }).then((data) => {
+        await getCurrentForecast({ location: q }).then((data) => {
             let forecast = JSON.parse(JSON.stringify(data)).forecast;
             this.forecast = [];
             for (let hour of forecast) {
@@ -58,27 +65,24 @@ export default class WeatherWidget extends LightningElement {
                     IconUrl: hour.iconUrl
                 });
             }
-
-            this.refineHour();
         });
     }
 
-    renderedCallback() {
-        if (!this.hasRendered) {
-            let container = this.template.querySelector(".forecast-container");
-            this.resize(container);
+    async refresh(q) {
+        await this.requestWeatherData(q);
+        this.loading = false;
+        this.renderHourData();
+        this.needRefresh = true;
+    }
 
-            window.addEventListener("resize", (event) => {
-                this.resize(container);
-                this.refineHour();
-            });
-
-            this.hasRendered = true;
+    async renderedCallback() {
+        if (this.needRefresh) {
+            this.renderIcon(this.template.querySelector(".icon128"));
+            this.needRefresh = false;
         }
 
-        let icons = this.template.querySelectorAll(".icon128, .icon64");
-        for (let icon of icons) {
-            this.renderIcon(icon);
+        if (!this.loading) {
+            this.renderIcons(this.template.querySelectorAll(".icon64"));
         }
     }
 
@@ -93,6 +97,19 @@ export default class WeatherWidget extends LightningElement {
         }
         this.previousDisabled = true;
         this.nextDisabled = false;
+    }
+
+    renderHourData() {
+        this.weatherHourData = [];
+        for (let id of this.hourIds) {
+            this.weatherHourData.push(this.forecast[id]);
+        }
+    }
+
+    renderIcons(icons) {
+        for (let icon of icons) {
+            this.renderIcon(icon);
+        }
     }
 
     renderIcon(icon) {
@@ -117,7 +134,7 @@ export default class WeatherWidget extends LightningElement {
         }
 
         this.previousDisabled = false;
-        this.refineHour();
+        this.renderHourData();
     }
 
     previousHour(event) {
@@ -134,14 +151,6 @@ export default class WeatherWidget extends LightningElement {
         }
 
         this.nextDisabled = false;
-        this.refineHour();
-    }
-
-    refineHour() {
-        this.weatherHourData = [];
-
-        for (let id of this.hourIds) {
-            this.weatherHourData.push(this.forecast[id]);
-        }
+        this.renderHourData();
     }
 }

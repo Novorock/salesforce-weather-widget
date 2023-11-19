@@ -1,24 +1,13 @@
 <!-- sldsValidatorIgnore -->
 <template>
-    <template lwc:if={loading}>
-        <div style="height:6rem;position:relative">
-            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_inverse">
-                <span class="slds-assistive-text">Loading</span>
-                <div class="slds-spinner__dot-a"></div>
-                <div class="slds-spinner__dot-b"></div>
-            </div>
+    <div class="location-input">
+        <div class="location-icon">
+            <lightning-icon icon-name="utility:checkin" variant="inverse" size="x-small"></lightning-icon>
         </div>
-    </template>
-    <template lwc:else>
-        <div class="location-input">
-            <div class="location-icon">
-                <lightning-icon icon-name="utility:checkin" variant="inverse" size="x-small"></lightning-icon>
-            </div>
-            <div class="location-container" onclick={editLocation}>
-                <span class="slds-text-heading_medium location" contenteditable="false" autocapitalize="off"
-                    spellcheck="false">
-                </span>
-            </div>
+        <div class="location-container" onclick={editLocation}>
+            <span class="slds-text-heading_medium location" contenteditable="false" autocapitalize="off"
+                spellcheck="false">
+            </span>
         </div>
-    </template>
+    </div>
 </template>
