@@ -1,0 +1,74 @@
+.widget {
+    display: grid;
+    grid-template-columns: 40% 60%;
+}
+
+.left-bar-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    background-color: #08ABED;
+}
+
+.left-bar-description,
+.left-bar-temperature {
+    text-align: center;
+}
+
+.icon64 {
+    width: 64px;
+    height: 64px;
+
+}
+
+.icon128 {
+    width: 128px;
+    height: 128px;
+}
+
+.today-date::before {
+    content: "\200B";
+}
+
+.right-bar-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #FFFFFF;
+}
+
+.forecast-container,
+.buttons {
+    width: 80%;
+}
+
+.forecast-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.hourly {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hourly-time,
+.hourly-icon,
+.hourly-description,
+.hourly-temperature,
+.hourly-wind {
+    text-align: center;
+}
+
+.hourly-description {
+    display: flex;
+    min-height: 3em;
+}
+
+.hourly-description span {
+    margin: auto;
+}

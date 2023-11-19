@@ -1,0 +1,20 @@
+.location-input {
+    display: flex;
+    justify-content: flex-start;
+    color: #ffffff;
+    width: 100%;
+}
+
+.location {
+    position: relative;
+    top: -1.5px;
+    width: 100%;
+}
+
+.location-icon {
+    margin-right: 0.2em;
+}
+
+.location-container::before {
+    content: "\200B";
+}
