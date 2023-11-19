@@ -51,21 +51,6 @@ export default class LocationSearchWidget extends LightningElement {
     }
 
     renderedCallback() {
-        // console.log(this.needRefresh);
-        // if (this.needRefresh) {
-        //     console.log(this.location);
-        //     let inputField = this.template.querySelector(".location");
-        //     inputField.innerText = this.location;
-
-        //     inputField.addEventListener("keypress", (event) => {
-        //         if (event.key === "Enter" || event.key === 13) {
-        //             event.preventDefault();
-        //             this.refineLocation(event.target.innerText);
-        //         }
-        //     });
-
-        //     this.needRefresh = false;
-        // }
     }
 
     refineLocation(loc) {
