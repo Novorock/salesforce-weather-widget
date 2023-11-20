@@ -3,8 +3,8 @@ import getCurrentWeather from '@salesforce/apex/WeatherWidgetService.getCurrentW
 import getCurrentForecast from '@salesforce/apex/WeatherWidgetService.getCurrentForecast';
 
 export default class WeatherWidget extends LightningElement {
-    @track
     location;
+    forecast = [];
     @track
     currentWeather = {
         Time: '',
@@ -15,13 +15,11 @@ export default class WeatherWidget extends LightningElement {
     };
     @track
     weatherHourData = [];
-    @track
     loading = true;
-    @track
-    needRefresh = false;
-
-    forecast = [];
-    hourIds = [0, 1, 2];
+    hasRendered = false;
+    sizeInitialized = false;
+    from = 0;
+    to = 2;
     previousDisabled = true;
     nextDisabled = false;
 
@@ -33,6 +31,11 @@ export default class WeatherWidget extends LightningElement {
         this.template.addEventListener("refresh", (event) => {
             this.location = event.detail;
             this.refresh(this.location);
+        });
+
+        window.addEventListener("resize", (event) => {
+            this.initSize();
+            this.renderHourData();
         });
     }
 
@@ -70,15 +73,41 @@ export default class WeatherWidget extends LightningElement {
 
     async refresh(q) {
         await this.requestWeatherData(q);
+        this.hasRendered = false;
         this.loading = false;
         this.renderHourData();
-        this.needRefresh = true;
     }
 
-    async renderedCallback() {
-        if (this.needRefresh) {
-            this.renderIcon(this.template.querySelector(".icon128"));
-            this.needRefresh = false;
+    initSize() {
+        let container = this.template.querySelector('.forecast-container');
+        let width = container?.clientWidth;
+
+        if (width >= 450) {
+            this.from = 0;
+            this.to = 4;
+        } else if (width >= 150) {
+            this.from = 0;
+            this.to = 2;
+        } else {
+            this.from = 0;
+            this.to = 0;
+        }
+        this.previousDisabled = true;
+        this.nextDisabled = false;
+    }
+
+    renderedCallback() {
+        if (!this.sizeInitialized) {
+            this.initSize();
+            this.sizeInitialized = true;
+        }
+
+        if (!this.hasRendered) {
+            let icon = this.template.querySelector(".icon128");
+            if (icon != null) {
+                this.renderIcon(icon);
+            }
+            this.hasRendered = true;
         }
 
         if (!this.loading) {
@@ -86,23 +115,10 @@ export default class WeatherWidget extends LightningElement {
         }
     }
 
-    resize(container) {
-        let width = container?.clientWidth;
-        if (width >= 450) {
-            this.hourIds = [0, 1, 2, 3, 4];
-        } else if (width >= 150) {
-            this.hourIds = [0, 1, 2];
-        } else {
-            this.hourIds = [0];
-        }
-        this.previousDisabled = true;
-        this.nextDisabled = false;
-    }
-
     renderHourData() {
         this.weatherHourData = [];
-        for (let id of this.hourIds) {
-            this.weatherHourData.push(this.forecast[id]);
+        for (let i = this.from; i <= this.to; i++) {
+            this.weatherHourData.push(this.forecast[i]);
         }
     }
 
@@ -121,13 +137,10 @@ export default class WeatherWidget extends LightningElement {
     nextHour(event) {
         event.target?.blur();
 
-        for (let i = 0; i < this.hourIds.length; i++) {
-            this.hourIds[i] += 1;
-        }
+        this.from += 1;
+        this.to += 1;
 
-        let last = this.hourIds.length - 1;
-
-        if (this.hourIds[last] === this.forecast.length - 1) {
+        if (this.to === this.forecast.length - 1) {
             this.nextDisabled = true;
         } else {
             this.nextDisabled = false;
@@ -140,11 +153,10 @@ export default class WeatherWidget extends LightningElement {
     previousHour(event) {
         event.target?.blur();
 
-        for (let i = 0; i < this.hourIds.length; i++) {
-            this.hourIds[i] -= 1;
-        }
+        this.from -= 1;
+        this.to -= 1;
 
-        if (this.hourIds[0] === 0) {
+        if (this.from === 0) {
             this.previousDisabled = true;
         } else {
             this.previousDisabled = false;
