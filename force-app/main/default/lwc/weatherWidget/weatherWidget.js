@@ -1,8 +1,13 @@
 import { LightningElement, track } from 'lwc';
+// import hasPermission from '@salesforce/customPermission/Weather_Widget_Access'
 import getCurrentWeather from '@salesforce/apex/WeatherWidgetService.getCurrentWeather';
 import getCurrentForecast from '@salesforce/apex/WeatherWidgetService.getCurrentForecast';
 
 export default class WeatherWidget extends LightningElement {
+    get isWidgetVisible() {
+        return true;
+    }
+
     location;
     forecast = [];
     @track
@@ -35,7 +40,6 @@ export default class WeatherWidget extends LightningElement {
 
         window.addEventListener("resize", (event) => {
             this.initSize();
-            this.renderHourData();
         });
     }
 
@@ -82,6 +86,9 @@ export default class WeatherWidget extends LightningElement {
         let container = this.template.querySelector('.forecast-container');
         let width = container?.clientWidth;
 
+        if (container == null)
+            return false;
+
         if (width >= 450) {
             this.from = 0;
             this.to = 4;
@@ -94,19 +101,23 @@ export default class WeatherWidget extends LightningElement {
         }
         this.previousDisabled = true;
         this.nextDisabled = false;
+
+        this.renderHourData();
+
+        return true;
     }
 
     renderedCallback() {
-        if (!this.sizeInitialized) {
-            this.initSize();
-            this.sizeInitialized = true;
-        }
-
         if (!this.hasRendered) {
             let icon = this.template.querySelector(".icon128");
             if (icon != null) {
                 this.renderIcon(icon);
             }
+
+            if (!this.sizeInitialized) {
+                this.sizeInitialized = this.initSize();
+            }
+
             this.hasRendered = true;
         }
 
