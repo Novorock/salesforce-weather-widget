@@ -5,7 +5,8 @@ global with sharing class WeatherWidgetService {
         Service_Credential__mdt credential = [
             SELECT Endpoint__c, API_key__c
             FROM Service_Credential__mdt
-            WHERE Label='Weather'
+            WHERE Label='weather'
+            LIMIT 1
         ];
 
         String apiKey = credential.API_key__c;
@@ -41,7 +42,8 @@ global with sharing class WeatherWidgetService {
         Service_Credential__mdt credential = [
             SELECT Endpoint__c, API_key__c
             FROM Service_Credential__mdt
-            WHERE Label='Forecast'
+            WHERE Label='forecast'
+            LIMIT 1
         ];
 
         String apiKey = credential.API_key__c;
@@ -55,13 +57,13 @@ global with sharing class WeatherWidgetService {
         Http http = new Http();
         HttpResponse response = http.send(request);
         Integer code = response.getStatusCode(); 
-        if (200 <= code && code < 300) {
-            WeatherForecastData forecast = new WeatherForecastData();
-            forecast.forecast = new List<WeatherData>();
-            Map<String, Object> t = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-            List<Object> li = (List<Object>) t.get('list');
-            
+        if (200 <= code && code < 300) {            
             try {
+				WeatherForecastData forecast = new WeatherForecastData();
+            	forecast.forecast = new List<WeatherData>();
+            	Map<String, Object> t = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+            	List<Object> li = (List<Object>) t.get('list');
+                
                 for (Object body : li) {
                     forecast.forecast.add(deserializeWeatherJSON((Map<String, Object>) body));
                 }

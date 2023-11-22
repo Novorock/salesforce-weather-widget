@@ -1,11 +1,11 @@
 import { LightningElement, track } from 'lwc';
-// import hasPermission from '@salesforce/customPermission/Weather_Widget_Access'
+import hasPermission from '@salesforce/customPermission/Weather_Widget_Access'
 import getCurrentWeather from '@salesforce/apex/WeatherWidgetService.getCurrentWeather';
 import getCurrentForecast from '@salesforce/apex/WeatherWidgetService.getCurrentForecast';
 
 export default class WeatherWidget extends LightningElement {
     get isWidgetVisible() {
-        return true;
+        return hasPermission;
     }
 
     location;

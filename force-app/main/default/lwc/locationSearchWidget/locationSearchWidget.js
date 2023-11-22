@@ -15,9 +15,9 @@ export default class LocationSearchWidget extends LightningElement {
 
     connectedCallback() {
         getDefaultLocation({}).then((data) => {
-            this.default = `${data.Location__c},${data.Country__c}`;
+            this.default = `${data.City},${data.Country}`;
             this.location = this.default;
-            this.q = `${data.Location__c},${data.Country__c}`;
+            this.q = `${data.City},${data.Country}`;
             this.refresh();
         });
     }

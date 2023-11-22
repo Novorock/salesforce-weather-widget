@@ -73,3 +73,16 @@
 .hourly-description span {
     margin: auto;
 }
+
+.rejection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.reject-icon-container, .reject-text-container {
+    width: 60%;
+    text-align: center;
+}

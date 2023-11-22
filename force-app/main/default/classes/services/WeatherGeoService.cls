@@ -1,12 +1,28 @@
 global with sharing class WeatherGeoService {
     @AuraEnabled
-    public static Default_City__mdt getDefaultLocation() {
-        return [
+    public static Location getDefaultLocation() {
+        Location loc = new Location();
+        Id id = UserInfo.getUserId();
+        User u = [SELECT City, Country FROM User WHERE Id=:id LIMIT 1];
+        
+        if (String.isNotBlank(u.City) && String.isNotBlank(u.Country)) {
+            loc.City = u.City;
+            loc.Country = u.Country;
+            
+            return loc;
+        }
+
+        Default_City_Setting__mdt mdt = [
             SELECT Location__c, Country__c
-            FROM Default_City__mdt
+            FROM Default_City_Setting__mdt
             WHERE Label='Default'
             LIMIT 1
         ];
+
+        loc.City = mdt.Location__c;
+        loc.Country = mdt.Country__c;
+
+        return loc;
     }
 
     @AuraEnabled
@@ -52,5 +68,12 @@ global with sharing class WeatherGeoService {
         global Double lon;
         @AuraEnabled
         global String country;
+    }
+
+    global class Location {
+        @AuraEnabled
+        global String City;
+        @AuraEnabled
+        global String Country;
     }
 }
