@@ -1,4 +1,4 @@
-global with sharing class WeatherGeoService {
+global with sharing class GeoService {
     @AuraEnabled
     public static Location getDefaultLocation() {
         Location loc = new Location();
@@ -12,9 +12,9 @@ global with sharing class WeatherGeoService {
             return loc;
         }
 
-        Default_City_Setting__mdt mdt = [
+        scww__Default_City_Setting__mdt mdt = [
             SELECT Location__c, Country__c
-            FROM Default_City_Setting__mdt
+            FROM scww__Default_City_Setting__mdt
             WHERE Label='Default'
             LIMIT 1
         ];
@@ -28,9 +28,9 @@ global with sharing class WeatherGeoService {
     @AuraEnabled
     public static List<GeoData> getGeoData(String location) {
         HttpRequest request = new HttpRequest();
-        Service_Credential__mdt credential = [
+        scww__Service_Credential__mdt credential = [
             SELECT Endpoint__c, API_key__c
-            FROM Service_Credential__mdt
+            FROM scww__Service_Credential__mdt
             WHERE Label='geo'
         ];
 

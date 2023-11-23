@@ -1,6 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
-import getGeoData from '@salesforce/apex/WeatherGeoService.getGeoData';
-import getDefaultLocation from '@salesforce/apex/WeatherGeoService.getDefaultLocation';
+import getGeoData from '@salesforce/apex/GeoService.getGeoData';
+import getDefaultLocation from '@salesforce/apex/GeoService.getDefaultLocation';
 
 export default class LocationSearchWidget extends LightningElement {
     default;

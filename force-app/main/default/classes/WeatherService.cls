@@ -1,10 +1,10 @@
-global with sharing class WeatherWidgetService {
+global class WeatherService {
     @AuraEnabled
     public static WeatherData getCurrentWeather(String location) {
         HttpRequest request = new HttpRequest();
-        Service_Credential__mdt credential = [
+        scww__Service_Credential__mdt credential = [
             SELECT Endpoint__c, API_key__c
-            FROM Service_Credential__mdt
+            FROM scww__Service_Credential__mdt
             WHERE Label='weather'
             LIMIT 1
         ];
@@ -35,53 +35,8 @@ global with sharing class WeatherWidgetService {
             throw e;
         }
     }
-
-    @AuraEnabled
-    public static WeatherForecastData getCurrentForecast(String location) {
-        HttpRequest request = new HttpRequest();
-        Service_Credential__mdt credential = [
-            SELECT Endpoint__c, API_key__c
-            FROM Service_Credential__mdt
-            WHERE Label='forecast'
-            LIMIT 1
-        ];
-
-        String apiKey = credential.API_key__c;
-        String endpoint = credential.Endpoint__c +
-        '?q=' + location
-        + '&cnt=8'
-        + '&APPID=' + apiKey;
-        request.setEndpoint(endpoint);
-        request.setMethod('GET');
-
-        Http http = new Http();
-        HttpResponse response = http.send(request);
-        Integer code = response.getStatusCode(); 
-        if (200 <= code && code < 300) {            
-            try {
-				WeatherForecastData forecast = new WeatherForecastData();
-            	forecast.forecast = new List<WeatherData>();
-            	Map<String, Object> t = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-            	List<Object> li = (List<Object>) t.get('list');
-                
-                for (Object body : li) {
-                    forecast.forecast.add(deserializeWeatherJSON((Map<String, Object>) body));
-                }
-
-                return forecast;
-            } catch (Exception e) {
-                AuraException ex = new AuraException();
-                ex.setMessage('Unable to deserialize the data via: "'  + endpoint + '". The problem is caused by: ' + e.getMessage());
-                throw ex;
-            }
-        } else {
-            AuraException e = new AuraException();
-            e.setMessage(response.getStatus());
-            throw e;
-        }   
-    }
-
-    private static WeatherData deserializeWeatherJSON(Map<String, Object> body) {
+    
+    public static WeatherData deserializeWeatherJSON(Map<String, Object> body) {
         WeatherData data = new WeatherData();
 
         List<Object> t = (List<Object>) body.get('weather');
@@ -100,7 +55,7 @@ global with sharing class WeatherWidgetService {
         
         return data;
     }
-
+    
     global class WeatherData {
         @AuraEnabled
         global Long timestamp;
@@ -112,10 +67,5 @@ global with sharing class WeatherWidgetService {
         global String description;
         @AuraEnabled
         global String iconUrl;
-    }
-
-    global class WeatherForecastData {
-        @AuraEnabled
-        global List<WeatherData> forecast;
     }
 }

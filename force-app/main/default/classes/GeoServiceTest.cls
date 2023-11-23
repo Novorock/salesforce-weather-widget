@@ -1,9 +1,9 @@
 @IsTest
-private class WeatherGeoServiceTest {
+public class GeoServiceTest {
     @isTest
     private static void testCallout() {
         Test.setMock(HttpCalloutMock.class, new MockHttpWeatherGeoResponse());
-        List<WeatherGeoService.GeoData> data = WeatherGeoService.getGeoData('Example');
+        List<GeoService.GeoData> data = GeoService.getGeoData('Example');
         System.assert(String.isNotBlank(data.get(0).name));
         System.assert(String.isNotBlank(data.get(0).country));
     }
@@ -12,7 +12,7 @@ private class WeatherGeoServiceTest {
     private static void testCalloutWithBadResponse() {
 		Test.setMock(HttpCalloutMock.class, new MockHttpWeatherGeoBadResponse());
         try {
-        	List<WeatherGeoService.GeoData> data = WeatherGeoService.getGeoData('Example');
+        	List<GeoService.GeoData> data = GeoService.getGeoData('Example');
             System.assert(true, 'Unreachable line expected.');
         } catch (Exception e) {
             System.assert(e instanceof AuraException);
@@ -25,7 +25,7 @@ private class WeatherGeoServiceTest {
         User u = [SELECT City, Country FROM User WHERE Id=:id LIMIT 1];
         
         System.runAs(u) {
-			WeatherGeoService.Location loc = WeatherGeoService.getDefaultLocation();        
+			GeoService.Location loc = GeoService.getDefaultLocation();        
         	System.assertEquals(loc.City, u.City);
 			System.assertEquals(loc.Country, u.Country);
         }
@@ -41,7 +41,7 @@ private class WeatherGeoServiceTest {
             	LIMIT 1
         	];
        
-        	WeatherGeoService.Location loc = WeatherGeoService.getDefaultLocation();
+        	GeoService.Location loc = GeoService.getDefaultLocation();
 			System.assertEquals(mdt.Location__c, loc.City);
         	System.assertEquals(mdt.Country__c, loc.Country);    
         }

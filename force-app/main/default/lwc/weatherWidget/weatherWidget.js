@@ -1,13 +1,10 @@
-import { LightningElement, track } from 'lwc';
-import hasPermission from '@salesforce/customPermission/Weather_Widget_Access'
-import getCurrentWeather from '@salesforce/apex/WeatherWidgetService.getCurrentWeather';
-import getCurrentForecast from '@salesforce/apex/WeatherWidgetService.getCurrentForecast';
+import { LightningElement, track, wire } from 'lwc';
+import getCurrentWeather from '@salesforce/apex/WeatherService.getCurrentWeather';
+import getCurrentForecast from '@salesforce/apex/ForecastService.getCurrentForecast';
+import checkPermission from '@salesforce/apex/PermissionService.hasCustomPermission';
 
 export default class WeatherWidget extends LightningElement {
-    get isWidgetVisible() {
-        return hasPermission;
-    }
-
+    hasPermission = false;
     location;
     forecast = [];
     @track
@@ -40,6 +37,11 @@ export default class WeatherWidget extends LightningElement {
 
         window.addEventListener("resize", (event) => {
             this.initSize();
+        });
+
+        checkPermission({}).then((data) => {
+            this.hasPermission = data;
+            console.log(`Permission: ${this.hasPermission}`);
         });
     }
 
